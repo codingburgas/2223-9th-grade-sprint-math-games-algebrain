@@ -5,33 +5,74 @@
 #include <vector>
 #include <map>
 
+
 typedef Vector2 pos;
 
 class game {
 protected:
 	const int screenWidth = 900;
-	const int screenHeight = 500; 
-	int floorHeight = 100;
+	const int screenHeight = 500;
+	int floorHeight = screenHeight - 100;
 
-public: 
+public:
 	game() { // constructor 
+		//screenWidth = GetScreenWidth();
+		//screenHeight = GetScreenHeight();
 		InitWindow(screenWidth, screenHeight, "Game");
 	}
 };
 
-class player : game{
-public: 
-	player() {
-		pos playerPos = { screenWidth / 2, screenHeight / 2 };
-		while (!WindowShouldClose()) {
+class player : game {
 
+	bool isJumping = false;
+	int jumpLimit = 50;
 
-			BeginDrawing();
-			ClearBackground(BLACK);
-			DrawCircleV(playerPos, 50, WHITE);
-			EndDrawing();
+	void gravity() {
+		if (!isJumping) {
+			if (playerPos.y < floorHeight) {
+				playerPos.y += 2.0f;
+			}
 		}
-		CloseWindow();
+	}
+
+	void moveRight() {
+		if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) playerPos.x += 3.0f;
+	}
+
+	void moveLeft() {
+		if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) playerPos.x -= 3.0f;
+	}
+
+	void jump() {
+		if (!isJumping) {
+			if (IsKeyDown(KEY_SPACE)) {
+				isJumping = true;
+
+					while(jumpLimit>0){
+						playerPos.y -= 2.0f;
+						jumpLimit--;
+					}
+				isJumping = false;
+				if (playerPos.y == floorHeight) {
+					jumpLimit = 50;
+				}
+			}
+		}
+	}
+
+public:
+	pos playerPos;
+	player() {
+		playerPos = { float(screenWidth) / float(2), float(screenHeight) / float(2) };
+	}
+
+
+
+	void movement() {
+		moveRight();
+		moveLeft();
+		jump();
+		gravity();
 	}
 
 };
@@ -42,4 +83,14 @@ int main()
 	SetTargetFPS(60);
 	player* p = new player();
 
+	while (!WindowShouldClose()) {
+
+		p->movement();
+
+		BeginDrawing();
+		ClearBackground(BLACK);
+		DrawCircleV(p->playerPos, 50, WHITE);
+		EndDrawing();
+	}
+	CloseWindow();
 }
