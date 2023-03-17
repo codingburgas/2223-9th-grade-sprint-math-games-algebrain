@@ -7,6 +7,7 @@
 
 
 typedef Vector2 pos;
+typedef Texture2D img;
 
 class game {
 protected:
@@ -30,7 +31,7 @@ class player : game {
 	void gravity() {
 		if (!isJumping) {
 			if (playerPos.y < floorHeight) {
-				playerPos.y += 2.0f;
+				playerPos.y += 5.0f;
 			}
 		}
 	}
@@ -61,6 +62,8 @@ class player : game {
 	}
 
 public:
+
+	img pSprite = LoadTexture("images/png.png");
 	pos playerPos;
 	player() {
 		playerPos = { float(screenWidth) / float(2), float(screenHeight) / float(2) };
@@ -82,14 +85,13 @@ int main()
 {
 	SetTargetFPS(60);
 	player* p = new player();
-
 	while (!WindowShouldClose()) {
 
 		p->movement();
 
 		BeginDrawing();
 		ClearBackground(BLACK);
-		DrawCircleV(p->playerPos, 50, WHITE);
+		DrawTexture(p->pSprite, p->playerPos.x, p->playerPos.y, WHITE);
 		EndDrawing();
 	}
 	CloseWindow();
