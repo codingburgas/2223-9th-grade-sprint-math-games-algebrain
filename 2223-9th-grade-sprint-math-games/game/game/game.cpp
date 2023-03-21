@@ -7,12 +7,12 @@
 
 
 typedef Vector2 pos;
-typedef Texture2D img;
+typedef Texture2D texture;
 
 class game {
 protected:
-	const int screenWidth = 900;
-	const int screenHeight = 500;
+	const int screenWidth = 1600;
+	const int screenHeight = 800;
 	int floorHeight = screenHeight - 100;
 
 public:
@@ -24,15 +24,9 @@ public:
 };
 
 class player : game {
-
-	bool isJumping = false;
-	int jumpLimit = 50;
-
 	void gravity() {
-		if (!isJumping) {
 			if (playerPos.y < floorHeight) {
 				playerPos.y += 5.0f;
-			}
 		}
 	}
 
@@ -44,37 +38,40 @@ class player : game {
 		if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) playerPos.x -= 3.0f;
 	}
 
-	void jump() {
-		if (!isJumping) {
-			if (IsKeyDown(KEY_SPACE)) {
-				isJumping = true;
-
-					while(jumpLimit>0){
-						playerPos.y -= 2.0f;
-						jumpLimit--;
-					}
-				isJumping = false;
-				if (playerPos.y == floorHeight) {
-					jumpLimit = 50;
-				}
-			}
-		}
-	}
 
 public:
 
-	img pSprite = LoadTexture("images/png.png");
+	texture pSprite = LoadTexture("images/png.png");
 	pos playerPos;
-	player() {
-		playerPos = { float(screenWidth) / float(2), float(screenHeight) / float(2) };
+	int lives = NULL;
+	float health;
+	float starting_health;
+
+	player(float health) {
+		floorHeight -= pSprite.height;
+		playerPos = { 20, float(floorHeight)};
+		this->health = health;
+		starting_health = health;
 	}
 
+	void ShowLives() {
+		Image heart = LoadImage("images/heart.png");
+		ImageResize(&heart,50,50);
+		texture heart_texture = LoadTextureFromImage(heart);
+		for (int i = 0; i < lives; i++) {
+			DrawTexture(heart_texture, 10 + (i*heart.width), 10, WHITE);
+		}
+	}
 
+	void showHealth() {
+		DrawRectangle(10, 10, 300, 50, RED);
+		DrawRectangle(15, 15, 290, 40, BLACK);
+		DrawRectangle(20, 20, 280* (health / starting_health), 30*(health/starting_health), RED);
+	}
 
 	void movement() {
 		moveRight();
 		moveLeft();
-		jump();
 		gravity();
 	}
 
@@ -84,7 +81,7 @@ public:
 int main()
 {
 	SetTargetFPS(60);
-	player* p = new player();
+	player* p = new player(5);
 	while (!WindowShouldClose()) {
 
 		p->movement();
@@ -92,6 +89,7 @@ int main()
 		BeginDrawing();
 		ClearBackground(BLACK);
 		DrawTexture(p->pSprite, p->playerPos.x, p->playerPos.y, WHITE);
+		p->showHealth();
 		EndDrawing();
 	}
 	CloseWindow();
