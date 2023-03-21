@@ -66,7 +66,7 @@ public:
 	void showHealth() {
 		DrawRectangle(10, 10, 300, 50, RED);
 		DrawRectangle(15, 15, 290, 40, BLACK);
-		DrawRectangle(20, 20, 280* (health / starting_health), 30*(health/starting_health), RED);
+		DrawRectangle(20, 20, 280.0f * (float(health) / starting_health), 30.0, RED);
 	}
 
 	void movement() {
@@ -103,6 +103,8 @@ int main()
 	usernameInput[0] = '\0';
 	int letterCount = 0;
 	int key = 0;
+	player* p = new player(1000, "");
+	p->health -= 250;
 	while (!WindowShouldClose()) {
 
 		if (!gameStart) {
@@ -137,12 +139,11 @@ int main()
 
 		}	
 		else {
-			player* p = new player(5, "");
 			ClearBackground(BLACK);
 			p->movement();
 			DrawTexture(p->pSprite, p->playerPos.x, p->playerPos.y, WHITE);
 			p->showHealth();
-		}
+	
 		EndDrawing();
 	}
 	CloseWindow();
