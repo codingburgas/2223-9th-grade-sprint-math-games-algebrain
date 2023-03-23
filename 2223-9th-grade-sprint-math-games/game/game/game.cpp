@@ -36,6 +36,11 @@ protected:
 
 	int floorHeight = screenHeight - 100;
 
+	struct difficulty {
+		std::string difName;
+		bool isSelected = false;
+	};
+
 public:
 };
 
@@ -51,12 +56,11 @@ public:
 	float starting_health;
 	std::string username;
 
-	player(float health, std::string username) {
+	difficulty* dif = new difficulty();
+
+	player() {
 		floorHeight -= pSprite.height;
 		playerPos = { 20, float(floorHeight) };
-		this->health = health;
-		starting_health = health;
-		this->username = username;
 	}
 
 	void ShowLives() {
@@ -80,6 +84,7 @@ public:
 		gravity(playerPos);
 	}
 
+
 };
 
 void drawCenterLines() {
@@ -101,18 +106,17 @@ int main()
 {
 	SetTargetFPS(60);
 	InitWindow(screenWidth, screenHeight, "Game");
-	bool gameStart = false;
+
+	bool difSelected = false;
 	bool clickedOnTextbox = false;
 	const int maxNameLength = 10;
-	char usernameInput[maxNameLength + 1];
-	usernameInput[0] = '\0';
-	int letterCount = 0;
 	int key = 0;
-	player* p = new player(1000, "");
-	p->health -= 200;
+	bool usernameChosen = false;
+
+	player* p = new player();
 	while (!WindowShouldClose()) {
 
-		if (!gameStart) {
+		if (!usernameChosen) {
 			//	Rectangle textbox = { screenWidth / 2 - 300 / 2, screenHeight / 2 - 50 / 2, 300,50 };
 			//	selectRectangle(clickedOnTextbox, textbox);
 			//	if (clickedOnTextbox) {
@@ -143,21 +147,43 @@ int main()
 			//	DrawText(usernameInput, screenWidth / 2 - 300 / 2, screenHeight / 2 - 50 / 2, 50, WHITE);
 
 			//}
+			if (!p->dif->isSelected) {
+				BeginDrawing();
+				ClearBackground(LIGHTGRAY);
+				//drawCenterLines();
+				DrawText("Chose your difficulty", screenWidth / 2 - (MeasureText("Input your username:", 50) / 2), screenHeight / 2 - 100, 50, BLACK);
+				Rectangle inputDifRec = { screenWidth / 2 - 400, screenHeight / 2, 800, 200 };
+				DrawRectangleRec(inputDifRec, BLACK);
+				std::map<std::string, Rectangle> difSelect;
+				difSelect["Easy"] = { inputDifRec.x,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
+				difSelect["Normal"] = { inputDifRec.x + inputDifRec.width / 3,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
+				difSelect["Hard"] = { inputDifRec.x + (inputDifRec.width / 3) * 2 ,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
 
-			BeginDrawing();
-			ClearBackground(LIGHTGRAY);
-			//drawCenterLines();
-			DrawText("Chose your difficulty", screenWidth / 2 - (MeasureText("Input your username:", 50) / 2), screenHeight / 2 - 100, 50, BLACK);
-			Rectangle inputDifRec = {screenWidth/2 - 400, screenHeight/2, 800, 200};
-			DrawRectangleRec(inputDifRec, BLACK);
-			std::map<std::string, Rectangle> difSelect;
-			difSelect["Easy"] = {inputDifRec.x,inputDifRec.y,inputDifRec.width/3,inputDifRec.height};
-			difSelect["Normal"] = { inputDifRec.x+inputDifRec.width/3,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height};
-			difSelect["Hard"] = { inputDifRec.x + (inputDifRec.width / 3)*2 ,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
-			for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++) {
-				DrawRectangleRec(itr->second,GRAY);
-				DrawRectangleLinesEx(itr->second,4,LIGHTGRAY);
-				DrawText(itr->first.c_str(), itr->second.x + itr->second.width/2 - (MeasureText(itr->first.c_str(), 30) / 2), itr->second.y + itr->second.height/2 - 15, 30, BLACK);
+				for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++) {
+					DrawRectangleRec(itr->second, GRAY);
+					DrawRectangleLinesEx(itr->second, 4, LIGHTGRAY);
+					DrawText(itr->first.c_str(), itr->second.x + itr->second.width / 2 - (MeasureText(itr->first.c_str(), 30) / 2), itr->second.y + itr->second.height / 2 - 15, 30, BLACK);
+				}
+
+					for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
+					{
+						if (CheckCollisionPointRec(GetMousePosition(), itr->second)) {
+							DrawRectangleLinesEx(itr->second, 5, BLACK);
+						}
+					}
+
+				if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+					for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
+					{
+						if (!p->dif->isSelected) {
+							selectRectangle(p->dif->isSelected, itr->second);
+							p->dif->difName = itr->first;
+						}
+					}
+				}
+			}
+			else {
+				CloseWindow();
 			}
 
 
