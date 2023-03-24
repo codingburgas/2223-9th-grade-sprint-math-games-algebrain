@@ -80,6 +80,8 @@ public:
 		DrawRectangle(10, 10, 300, 50, RED);
 		DrawRectangle(15, 15, 290, 40, BLACK);
 		DrawRectangle(20, 20, float(280) * (health / starting_health), 30, RED);
+		std::string healthStr = std::to_string((int)health) + "|" + std::to_string((int)starting_health);
+		DrawText(healthStr.c_str(), 320, 20+ (30/2) - 50/2, 50, RED);
 	}
 
 	void movement() {
@@ -124,6 +126,7 @@ int main()
 {
 	SetTargetFPS(60);
 	InitWindow(screenWidth, screenHeight, "Game");
+	bool setDifVal = true;
 	std::vector<bool*> boolSelected;
 	bool difSelected = false;
 	const int maxNameLength = 10;
@@ -215,7 +218,20 @@ int main()
 						}
 					}
 				}
-
+				
+				if (setDifVal && p->dif->isSelected) {
+					if(p->dif->difName == "Easy") {
+						p->starting_health = 150;
+					}
+					if (p->dif->difName == "Normal") {
+						p->starting_health = 100;
+					}
+					if (p->dif->difName == "Hard") {
+						p->starting_health = 50;
+					}
+					p->health = p->starting_health;
+					setDifVal = false;
+				}
 
 		}
 		if (p->dif->isSelected && usernameChosen){
