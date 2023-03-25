@@ -1,7 +1,7 @@
 <h1 align="center">Algebrain</h1>
 
 <p align = "center">
-  <img src="2223-9th-grade-sprint-math-games/logos/logo_blue2.png" alt="Algebrain's logo">
+  <img src="2223-9th-grade-sprint-math-games/logos/logo_white2.png" alt="Algebrain's logo">
 </p>
 
 <br>
