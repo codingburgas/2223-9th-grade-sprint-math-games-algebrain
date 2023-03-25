@@ -1,7 +1,7 @@
 <h1 align="center">Algebrain</h1>
 
 <p align = "center">
-  <img src="2223-9th-grade-sprint-math-games/logos/logo_white2.png" alt="Algebrain's logo">
+  <img src="2223-9th-grade-sprint-math-games/logos/logo_blue2.png" alt="Algebrain's logo">
 </p>
 
 <br>
@@ -24,8 +24,10 @@ The game consists of 3 levels, each with a different difficulty. When the game s
 ## 🗂 Used technologies
 <p align="left"> 
   <a href="https://visualstudio.microsoft.com/"><img src="https://img.icons8.com/fluency/48/000000/visual-studio.png" alt="Visual Studio 2019"/></a>
+  <a href="https://code.visualstudio.com/"><img src="https://img.icons8.com/color/48/null/visual-studio-code-2019.png" alt="Visual Studio Code 2019"/></a>
   <a href="https://www.microsoft.com/en-ww/microsoft-365/word"><img src="https://img.icons8.com/fluency/48/000000/microsoft-word-2019.png" alt="MS Word logo" width=48px /></a>
   <a href="https://www.microsoft.com/en-us/microsoft-365/powerpoint"><img src="https://img.icons8.com/fluency/48/000000/microsoft-powerpoint-2019.png" alt="MS PowerPoint logo" width=48px />
+  <a href="https://www.adobe.com/"><img src="https://img.icons8.com/color/48/null/adobe-illustrator--v1.png" alt="Adobe"/></a>
   <a href="https://www.microsoft.com/en-us/microsoft-365/excel"><img src="https://img.icons8.com/fluency/48/000000/microsoft-excel-2019.png" alt="MS Excel logo"/></a><a href="https://git-scm.com/"><img src="https://img.icons8.com/color/48/000000/git.png" alt="Git"/></a>
   <a href="https://git-scm.com/"><img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub" heigh=48px width=48px/></a>
 </p> 
