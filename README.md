@@ -19,6 +19,7 @@ The game consists of 3 levels, each with a different difficulty. When the game s
 ## 🚀 Languages 
 <p align="left"> 
   <a href="https://www.cplusplus.com/"><img src="https://img.icons8.com/color/48/000000/c-plus-plus-logo.png" alt="C++"/></a>
+  <a href="https://www.learn-c.org/"><img src="https://img.icons8.com/color/48/null/c-programming.png" alt="C"/></a>
 </p>
 
 ## 🗂 Used technologies
