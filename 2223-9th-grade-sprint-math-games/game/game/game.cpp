@@ -37,12 +37,12 @@ struct text {
 	Color clr;
 	int fontSize;
 };
+struct question {
+	std::string qst;
+	std::string answers[3];
+	int correctAnswer;
+};
 
-//struct question {
-//	std::string question;
-//	std::string answers[3];
-//	int correctAnswer;
-//};
 
 texture textureMake(Image* img, int width, int height) {
 	ImageResize(img, width, height);
@@ -51,6 +51,8 @@ texture textureMake(Image* img, int width, int height) {
 
 class game {
 protected:
+
+
 	void gravity(pos& playerPos, int pHeight) {
 		if (playerPos.y < floorHeight - pHeight) {
 			playerPos.y += 5.0f;
@@ -78,22 +80,23 @@ protected:
 		bool isSelected = false;
 	};
 
-	Image villainImg = LoadImage("images/villain.png");
-	texture villain;
-	pos villainPos;
+	Image enemyImg = LoadImage("images/enemy.png");
+	texture enemy;
+	pos enemyPos;
+	int enemyHealth = 3;
 
-	//std::vector<question> questions = {
-	//{ "1010 & 1101?",{"1001","1111","1000"},3},
-	//{ "0101 & 1101?",{"0101","1010","1101"},1},
-	//{ "0011 ^ 0101?",{"0100","0010","0110"},2},
-	//{ "1101 | 1011?",{"1001","1000","1110"},1}
-	//};
+	std::vector<question> questions{
+	{ "1010 & 1101?",{"1001","1111","1000"},3},
+	{ "0101 & 1101?",{"0101","1010","1101"},1},
+	{ "0011 ^ 0101?",{"0100","0010","0110"},2},
+	{ "1101 | 1011?",{"1001","1000","1110"},1}
+	};
 
 public:
 	game() {
-		ImageFlipHorizontal(&villainImg);
-		villain = textureMake(&villainImg, villainImg.width * 2, villainImg.height * 2);
-		villainPos = { (float)screenWidth - 50 - villain.width, (float)floorHeight - villain.height };
+		ImageFlipHorizontal(&enemyImg);
+		enemy = textureMake(&enemyImg, enemyImg.width * 2, enemyImg.height * 2);
+		enemyPos = { (float)screenWidth - 50 - enemy.width, (float)floorHeight - enemy.height };
 	}
 };
 
@@ -101,6 +104,8 @@ public:
 
 class player : public game {
 public:
+
+	std::vector<bool*> boolSelected;
 	Image pSpriteImg = LoadImage("images/sprite.png");
 	texture pSprite;
 	pos playerPos;
@@ -110,9 +115,11 @@ public:
 	std::string username;
 	std::string usernameChosing;
 	bool attacking = false;
-
 	difficulty* dif = new difficulty();
-	//question q = questions[GetRandomValue(0, 3)];
+	question q = questions[GetRandomValue(0, questions.size() - 1)];
+	bool answerClicked = false;
+	bool rightAnswer;
+	bool takeDamage = true;
 
 
 	player() {
@@ -147,21 +154,30 @@ public:
 	int getFloorHeight() {
 		return floorHeight;
 	}
-	texture* getVillain() {
-		return &villain;
+	texture* getEnemy() {
+		return &enemy;
 	}
 
-	pos* getVillainPos() {
-		return &villainPos;
+	pos* getEnemyPos() {
+		return &enemyPos;
 	}
 
-	//const std::vector<question>& getQuestions() {
-	//	return questions;
-	//}
+	const std::vector<question>& getQuestions() {
+		return questions;
+	}
+
+	void showEnemyHealth() {
+
+		Rectangle rec1 = { enemyPos.x + (enemy.width - 200) / 2,enemyPos.y - 30,100,20 };
+		Rectangle rec2 = { enemyPos.x + (enemy.width - 200) / 2, enemyPos.y - 30, 100 * ((float)enemyHealth / 3), 20 };
+		DrawRectangleRec(rec1, BLACK);
+		DrawRectangleRec(rec2, RED);
+		DrawRectangleLinesEx(rec1, 2, BLACK);
+	}
 
 	void attack() {
 		if (!attacking) {
-			if (playerPos.x > villainPos.x - 100 - pSprite.width) {
+			if (playerPos.x > enemyPos.x - 100 - pSprite.width) {
 				DrawText("Press E to attack", playerPos.x + (pSprite.width - MeasureText("Press E to attack", 30)) / 2, playerPos.y - 50, 30, BLACK);
 				if (IsKeyDown(KEY_E)) {
 					attacking = true;
@@ -169,14 +185,38 @@ public:
 			}
 		}
 		else {
-			//Rectangle questionRec = { screenWidth / 2 - (MeasureText(q.question.c_str(),30)) / 2, screenHeight / 2 - 100, (MeasureText(q.question.c_str(),30)), 200 };
-			//DrawRectangleRec(questionRec, BLACK);
+			Rectangle questionRec = { screenWidth / 2 - (MeasureText(q.qst.c_str(),60)) / 1.5, screenHeight / 2 - 200, (MeasureText(q.qst.c_str(),60) + 120), 400 };
+			DrawRectangle(0, 0, screenWidth, screenHeight, { 0,0,0,100 });
+			DrawRectangleRec(questionRec, LIGHTGRAY);
+			DrawRectangleLinesEx(questionRec, 3, BLACK);
+			DrawText(q.qst.c_str(), questionRec.x + 60, questionRec.y + 60, 60, BLACK);
+			Rectangle answerRec[3];
+			for (int i = 0; i < 3; i++) {
+				answerRec[i] = { questionRec.x + (questionRec.width - MeasureText(q.qst.c_str(),60)) / 2 , questionRec.y + 130 + (i * 80) ,(float)MeasureText(q.qst.c_str(),60), 60 };
+				DrawRectangleRec(answerRec[i], GRAY);
+				DrawRectangleLinesEx(answerRec[i], 3, BLACK);
+				DrawText(q.answers[i].c_str(), answerRec[i].x + (answerRec[i].width - MeasureText(q.answers[i].c_str(), 60)) / 2, answerRec[i].y, 60, BLACK);
+				if (i == q.correctAnswer - 1) DrawRectangle(answerRec[i].x, answerRec[i].y, 10, 10, GREEN);
+			}
+			if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+				selectRectangle(answerClicked, answerRec[q.correctAnswer - 1], boolSelected);
+				if (answerClicked) {
+					enemyHealth -= 1;
+				}
+				else {
+					health -= 25;
+
+				}
+				attacking = false;
+				answerClicked = false;
+				q = questions[GetRandomValue(0, questions.size() - 1)];
+			}
 		}
 
 	}
-
-
 };
+
+
 
 // ----------------------------------- Main ----------------------------------
 
@@ -187,7 +227,6 @@ int main()
 	Image background_1Img = LoadImage("images/background.png");
 	texture background_1 = textureMake(&background_1Img, screenWidth, screenHeight);
 	bool setDifVal = true;
-	std::vector<bool*> boolSelected;
 	bool difSelected = false;
 	const int maxNameLength = 10;
 	int key = 0;
@@ -204,8 +243,8 @@ int main()
 		if (!usernameChosen) {
 			Rectangle textbox = { screenWidth / 2 - 300 / 2, screenHeight / 2 - 50 / 2, 300,50 };
 			Rectangle submit = { screenWidth / 2 - 150 / 2, screenHeight / 2 + 100 / 2, 150,75 };
-			selectRectangle(clickedOnTextbox, textbox, boolSelected);
-			selectRectangle(clickedOnSubmit, submit, boolSelected);
+			selectRectangle(clickedOnTextbox, textbox, p->boolSelected);
+			selectRectangle(clickedOnSubmit, submit, p->boolSelected);
 			if (clickedOnTextbox) {
 				key = GetKeyPressed();
 
@@ -273,7 +312,7 @@ int main()
 				for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
 				{
 					if (!p->dif->isSelected) {
-						selectRectangle(p->dif->isSelected, itr->second, boolSelected);
+						if (CheckCollisionPointRec(GetMousePosition(), itr->second)) p->dif->isSelected = true;
 						p->dif->difName = itr->first;
 					}
 				}
@@ -299,18 +338,19 @@ int main()
 			DrawTexture(background_1, 0, 0, WHITE);
 			//DrawRectangle(0, p->getFloorHeight(), screenWidth, screenWidth - p->getFloorHeight(), GRAY);
 			p->movement();
-			DrawTexture(*p->getVillain(), p->getVillainPos()->x, p->getVillainPos()->y, WHITE);
+			DrawTexture(*p->getEnemy(), p->getEnemyPos()->x, p->getEnemyPos()->y, WHITE);
 			DrawTexture(p->pSprite, p->playerPos.x, p->playerPos.y, WHITE);
 			p->attack();
 			p->showHealth();
+			p->showEnemyHealth();
 			/*DrawRectangle(p->playerPos.x, p->playerPos.y, 10, 10, RED);
 			DrawRectangle(p->playerPos.x + p->pSprite.width, p->playerPos.y, 10, 10, RED);*/
 		}
 		//for (int i = 0; i < screenHeight; i += 20) {
 		//	DrawRectangle(0, i, 10, 10, RED);
 		//}
-
 		EndDrawing();
 	}
+	delete p;
 	CloseWindow();
 }
