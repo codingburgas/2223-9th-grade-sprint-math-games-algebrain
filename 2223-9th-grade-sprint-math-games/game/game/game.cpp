@@ -11,6 +11,7 @@ typedef Texture2D texture;
 
 const int screenWidth = 1200;
 const int screenHeight = 600;
+bool showAnswers = false // Set to true if you want to show answers (shows 10x10px green box on top of the correct answer rectangle)
 
 void drawCenterLines() { // used for testing
 	DrawRectangle(screenWidth / 2, 0, 1, 10000, BLACK);
@@ -224,7 +225,7 @@ public:
 					DrawRectangleRec(answerRec[i], GRAY);
 					DrawRectangleLinesEx(answerRec[i], 3, BLACK);
 					DrawText(q.answers[i].c_str(), answerRec[i].x + (answerRec[i].width - MeasureText(q.answers[i].c_str(), 60)) / 2, answerRec[i].y, 60, BLACK);
-					if (i == q.correctAnswer - 1) DrawRectangle(answerRec[i].x, answerRec[i].y, 10, 10, GREEN);
+					if(showAnswers = true) if (i == q.correctAnswer - 1) DrawRectangle(answerRec[i].x, answerRec[i].y, 10, 10, GREEN);
 				}
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
 					for (int i = 0; i < 3; i++) {
