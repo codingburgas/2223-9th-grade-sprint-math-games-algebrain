@@ -12,12 +12,12 @@ typedef Texture2D texture;
 const int screenWidth = 1200;
 const int screenHeight = 600;
 
-void drawCenterLines() {
+void drawCenterLines() { // used for testing
 	DrawRectangle(screenWidth / 2, 0, 1, 10000, BLACK);
 	DrawRectangle(0, screenHeight / 2, 10000, 1, BLACK);
 }
 
-void selectRectangle(bool& flag, Rectangle rec, std::vector<bool*>& v) {
+void selectRectangle(bool& flag, Rectangle rec, std::vector<bool*>& v) { //checks if the user has clicked on a given rectangle and changes the value of a given bool respectively 
 	if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
 		if (CheckCollisionPointRec(GetMousePosition(), rec)) {
 			if (v.size() > 1) {
@@ -37,6 +37,7 @@ struct text {
 	Color clr;
 	int fontSize;
 };
+
 struct question {
 	std::string qst;
 	std::string answers[3];
@@ -44,7 +45,7 @@ struct question {
 };
 
 
-texture textureMake(Image* img, int width, int height) {
+texture textureMake(Image* img, int width, int height) { // loads an image, resizes it and returns the image converted into a texture 
 	ImageResize(img, width, height);
 	return LoadTextureFromImage(*img);
 }
@@ -54,20 +55,20 @@ protected:
 	Image background_1Img = LoadImage("images/background.png");
 	texture background_1 = textureMake(&background_1Img, screenWidth, screenHeight);
 
-	void gravity(pos& playerPos, int pHeight) {
+	void gravity(pos& playerPos, int pHeight) { // acts as gravity for the player 
 		if (playerPos.y < floorHeight - pHeight) {
 			playerPos.y += 5.0f;
 		}
 	}
 
-	void moveRight(pos& playerPos, int pWidth) {
+	void moveRight(pos& playerPos, int pWidth) { // allows the player to move right 
 		if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
 			if (playerPos.x <= screenWidth - (pWidth / 4) * 3)
 				playerPos.x += 10.0f;
 		}
 	}
 
-	void moveLeft(pos& playerPos, int pWidth) {
+	void moveLeft(pos& playerPos, int pWidth) { // allows the player to move left 
 		if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
 			if (playerPos.x >= 0 - pWidth / 4)
 				playerPos.x -= 10.0f;
@@ -86,16 +87,21 @@ protected:
 	pos enemyPos;
 	int enemyHealth = 3;
 
-	std::vector<question> questions{
+	std::vector<question> questions{ // vector of questions that will be used for the game
 	{ "1010 & 1101?",{"1001","1111","1000"},3},
 	{ "0101 & 1101?",{"0101","1010","1101"},1},
-	{ "0011 ^ 0101?",{"0100","0010","0110"},2},
-	{ "1101 | 1011?",{"1001","1000","1110"},1}
+	{ "0011 ^ 0101?",{"0100","0010","0110"},3},
+	{ "1101 | 1011?",{"1001","1000","1110"},1},
+	{ "1 << x = 32",{"x = 3","x = 4","x = 5"},3},
+	{ "1 << x = 8",{"x = 4","x = 3","x = 2"},2},
+	{ "40 >> x = 10",{"x = 2","x = 3","x = 1"},1},
+	{ "~0010111 = ?",{"0010111","1101000","11111111"},2}
+
 	};
 
 public:
 	game() {
-		ImageFlipHorizontal(&enemyImg);
+		ImageFlipHorizontal(&enemyImg); // flips the enemy so that it is facing the player
 		enemy = textureMake(&enemyImg, enemyImg.width * 2, enemyImg.height * 2);
 		enemyPos = { (float)screenWidth - 50 - enemy.width, (float)floorHeight - enemy.height };
 	}
@@ -106,18 +112,18 @@ public:
 class player : public game {
 public:
 
-	std::vector<bool*> boolSelected;
+	std::vector<bool*> boolSelected; // vector of selected rectangles
 	Image pSpriteImg = LoadImage("images/sprite.png");
-	texture pSprite;
-	pos playerPos;
-	int lives = NULL;
-	float health;
-	float starting_health;
-	std::string username;
-	std::string usernameChosing;
-	bool attacking = false;
-	difficulty* dif = new difficulty();
-	question q = questions[GetRandomValue(0, questions.size() - 1)];
+	texture pSprite; // texture of the player
+	pos playerPos; // position of the player
+	//int lives = NULL;
+	float health = NULL; // health of the player
+	float starting_health = NULL; // starting health of the player
+	std::string username; // username that the player inputs
+	std::string usernameChosing; // string that gets inputed by 
+	bool attacking = false; 
+	difficulty* dif = new difficulty(); // creates the difficulty that the player will have to chose
+	question q = questions[GetRandomValue(0, questions.size() - 1)]; // randomly pick question
 	bool answerClicked = false;
 	bool correctAnswerClicked = false;
 	bool rightAnswer;
@@ -127,19 +133,19 @@ public:
 	player() {
 		ImageResize(&pSpriteImg, pSpriteImg.width / 6, pSpriteImg.height / 6);
 		pSprite = LoadTextureFromImage(pSpriteImg);
-		playerPos = { 20, (float)floorHeight - pSprite.height };
+		playerPos = { 20, (float)floorHeight - pSprite.height }; // sets the floor height to a height relative to the player's height
 	}
 
-	void ShowLives() {
-		Image heart = LoadImage("images/heart.png");
-		ImageResize(&heart, 50, 50);
-		texture heart_texture = LoadTextureFromImage(heart);
-		for (int i = 0; i < lives; i++) {
-			DrawTexture(heart_texture, 10 + (i * heart.width), 10, WHITE);
-		}
-	}
+	//void ShowLives() { // shows the lives of the player
+	//	Image heart = LoadImage("images/heart.png");
+	//	ImageResize(&heart, 50, 50);
+	//	texture heart_texture = LoadTextureFromImage(heart);
+	//	for (int i = 0; i < lives; i++) {
+	//		DrawTexture(heart_texture, 10 + (i * heart.width), 10, WHITE);
+	//	}
+	//}
 
-	void showHealth() {
+	void showHealth() { // displays the players health 
 		DrawRectangle(10, 10, 300, 50, RED);
 		DrawRectangle(15, 15, 290, 40, BLACK);
 		DrawRectangle(20, 20, float(280) * (health / starting_health), 30, RED);
@@ -147,7 +153,7 @@ public:
 		DrawText(healthStr.c_str(), 320, 20 + (30 / 2) - 50 / 2, 50, RED);
 	}
 
-	void movement() {
+	void movement() { // allows the player to move according to the user’s input 
 		moveRight(playerPos, pSprite.width);
 		moveLeft(playerPos, pSprite.width);
 		gravity(playerPos, pSprite.height);
@@ -171,7 +177,7 @@ public:
 		return enemyHealth;
 	}
 
-	void showEnemyHealth() {
+	void showEnemyHealth() { // displays the enemy's health
 
 		Rectangle rec1 = { enemyPos.x + (enemy.width - 200) / 2,enemyPos.y - 30,100,20 };
 		Rectangle rec2 = { enemyPos.x + (enemy.width - 200) / 2, enemyPos.y - 30, 100 * ((float)enemyHealth / 3), 20 };
@@ -184,7 +190,7 @@ public:
 		return background_1;
 	}
 
-	void finishGame() {
+	void finishGame() { // shows the finished game screen 
 		std::string finishMsg;
 		if (!(health > 0)) finishMsg = username + ", you failed the game!";
 		if (!(enemyHealth > 0)) finishMsg = username + " won the game!";
@@ -192,7 +198,7 @@ public:
 		DrawText(finishMsg.c_str(), screenWidth / 2 - (MeasureText(finishMsg.c_str(), 50) / 2), screenHeight / 2 - 50, 50, BLACK);
 	}
 
-	void attack() {
+	void attack() { //  lets the player attack the enemy by pressing KEY_E and answering questions related to bitwise operations 
 		if (health > 0 && enemyHealth > 0) {
 			if (!attacking) {
 				if (playerPos.x > enemyPos.x - 100 - pSprite.width) {
@@ -207,12 +213,12 @@ public:
 				}
 			}
 			else {
-				Rectangle questionRec = { screenWidth / 2 - (MeasureText(q.qst.c_str(),60)) / 1.5, screenHeight / 2 - 200, (MeasureText(q.qst.c_str(),60) + 120), 400 };
+				Rectangle questionRec = { screenWidth / 2 - (MeasureText(q.qst.c_str(),60)) / 1.5, screenHeight / 2 - 200, (MeasureText(q.qst.c_str(),60) + 120), 400 }; // makes a rectangle that will house questions and answers
 				DrawRectangle(0, 0, screenWidth, screenHeight, { 0,0,0,100 });
 				DrawRectangleRec(questionRec, LIGHTGRAY);
 				DrawRectangleLinesEx(questionRec, 3, BLACK);
 				DrawText(q.qst.c_str(), questionRec.x + 60, questionRec.y + 60, 60, BLACK);
-				Rectangle answerRec[3];
+				Rectangle answerRec[3]; // makes 3 rectangles the player can click
 				for (int i = 0; i < 3; i++) {
 					answerRec[i] = { questionRec.x + (questionRec.width - MeasureText(q.qst.c_str(),60)) / 2 , questionRec.y + 130 + (i * 80) ,(float)MeasureText(q.qst.c_str(),60), 60 };
 					DrawRectangleRec(answerRec[i], GRAY);
@@ -222,11 +228,11 @@ public:
 				}
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
 					for (int i = 0; i < 3; i++) {
-						if (CheckCollisionPointRec(GetMousePosition(), answerRec[i])) {
+						if (CheckCollisionPointRec(GetMousePosition(), answerRec[i])) { // checks if the user has clicked on any one of the answe rectangle
 							answerClicked = true;
 						}
 					}
-					selectRectangle(correctAnswerClicked, answerRec[q.correctAnswer - 1], boolSelected);
+					selectRectangle(correctAnswerClicked, answerRec[q.correctAnswer - 1], boolSelected); // checks if the user has clicked on the rectangle with the correct answer
 					if (answerClicked) {
 						if (correctAnswerClicked) {
 							enemyHealth -= 1;
@@ -238,8 +244,8 @@ public:
 						attacking = false;
 						answerClicked = false;
 						correctAnswerClicked = false;
-						q = questions[GetRandomValue(0, questions.size() - 1)];
-						playerPos = { 20, (float)floorHeight - pSprite.height };
+						q = questions[GetRandomValue(0, questions.size() - 1)]; // re-picks a random question
+						playerPos = { 20, (float)floorHeight - pSprite.height }; // resets the player's position
 					}
 				}
 			}
@@ -279,12 +285,12 @@ int main()
 
 					if ((key >= 32) && (key <= 125) && (p->usernameChosing.size() < maxNameLength))
 					{
-						p->usernameChosing.push_back(key);
+						p->usernameChosing.push_back(key); // adds a letter to the username the user is inputing
 					}
 					key = GetKeyPressed();
 					if (IsKeyPressed(KEY_BACKSPACE)) {
 						if (p->usernameChosing.size() > 0)
-							p->usernameChosing.pop_back();
+							p->usernameChosing.pop_back(); // removes a letter from the username the user is inputing
 					}
 				}
 				ClearBackground(LIGHTGRAY);
@@ -303,8 +309,8 @@ int main()
 				else {
 					submitMessage.clr = RED;
 					DrawRectangleLinesEx(submit, 3, RED);
-					if (p->usernameChosing.size() > 0) {
-						p->username = p->usernameChosing;
+					if (p->usernameChosing.size() > 3) { // checks if the user has inputed a username which has a length larger than 3 characters
+						p->username = p->usernameChosing; //
 						usernameChosen = true;
 					}
 					else {
@@ -319,12 +325,13 @@ int main()
 				DrawText("Chose your difficulty", screenWidth / 2 - (MeasureText("Input your username:", 50) / 2), screenHeight / 2 - 100, 50, BLACK);
 				Rectangle inputDifRec = { screenWidth / 2 - 400, screenHeight / 2, 800, 200 };
 				DrawRectangleRec(inputDifRec, BLACK);
-				std::map<std::string, Rectangle> difSelect;
-				difSelect["Easy"] = { inputDifRec.x,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
+				std::map<std::string, Rectangle> difSelect; // created a map for rectangles that can be accessed with strings that represent difficulty
+				//initializing the rectangles 
+				difSelect["Easy"] = { inputDifRec.x,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height }; 
 				difSelect["Normal"] = { inputDifRec.x + inputDifRec.width / 3,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
 				difSelect["Hard"] = { inputDifRec.x + (inputDifRec.width / 3) * 2 ,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
 
-				for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++) {
+				for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++) { // loops through the difSelect map
 					DrawRectangleRec(itr->second, GRAY);
 					DrawRectangleLinesEx(itr->second, 4, LIGHTGRAY);
 					DrawText(itr->first.c_str(), itr->second.x + itr->second.width / 2 - (MeasureText(itr->first.c_str(), 30) / 2), itr->second.y + itr->second.height / 2 - 15, 30, BLACK);
@@ -332,12 +339,12 @@ int main()
 
 				for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
 				{
-					if (CheckCollisionPointRec(GetMousePosition(), itr->second)) {
+					if (CheckCollisionPointRec(GetMousePosition(), itr->second)) { // checks if the user is hovering over one of the difSelect rectangles
 						DrawRectangleLinesEx(itr->second, 5, BLACK);
 					}
 				}
 
-				if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) { // checks if the user has clicked on one of the difSelect rectangles
 					for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
 					{
 						if (!p->dif->isSelected) {
@@ -347,7 +354,7 @@ int main()
 					}
 				}
 
-				if (setDifVal && p->dif->isSelected) {
+				if (setDifVal && p->dif->isSelected) { // initializes dif which is a difficulty type
 					if (p->dif->difName == "Easy") {
 						p->starting_health = 150;
 					}
@@ -363,7 +370,7 @@ int main()
 
 			}
 			if (p->dif->isSelected && usernameChosen) {
-				if (p->health > 0 && p->getEnemyHealth() > 0) {
+				if (p->health > 0 && p->getEnemyHealth() > 0) { // checks if the user can continue playing
 					DrawTexture(p->getBackgroundTexture(), 0, 0, WHITE);
 					//DrawRectangle(0, p->getFloorHeight(), screenWidth, screenWidth - p->getFloorHeight(), GRAY);
 					p->movement();
