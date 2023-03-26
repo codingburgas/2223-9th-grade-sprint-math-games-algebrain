@@ -16,13 +16,13 @@
 ## 📋 Description
 The game consists of 3 levels, each with a different difficulty. When the game starts, the player enters their own name and selects the difficulty level. In the process of playing, the player solves tasks and answers questions related to bitwise operations. If the player indicates a correct answer, a life is taken from the enemy, but if he marks a wrong answer, a life is taken from his. The game is won if the player manages to answer enough questions correctly to take down the enemy.
 
-## 🚀 Languages 
-<p align="left"> 
+## 🚀 Languages
+<p align="left">
   <a href="https://www.cplusplus.com/"><img src="https://img.icons8.com/color/48/000000/c-plus-plus-logo.png" alt="C++"/></a>
 </p>
 
 ## 🗂 Used technologies
-<p align="left"> 
+<p align="left">
   <a href="https://visualstudio.microsoft.com/"><img src="https://img.icons8.com/fluency/48/000000/visual-studio.png" alt="Visual Studio 2019"/></a>
   <a href="https://code.visualstudio.com/"><img src="https://img.icons8.com/color/48/null/visual-studio-code-2019.png" alt="Visual Studio Code 2019"/></a>
   <a href="https://www.microsoft.com/en-ww/microsoft-365/word"><img src="https://img.icons8.com/fluency/48/000000/microsoft-word-2019.png" alt="MS Word logo" width=48px /></a>
@@ -31,18 +31,20 @@ The game consists of 3 levels, each with a different difficulty. When the game s
   <a href="https://www.adobe.com/"><img src="https://img.icons8.com/color/48/null/adobe-illustrator--v1.png" alt="Adobe"/></a>
   <a href="https://git-scm.com/"><img src="https://img.icons8.com/color/48/000000/git.png" alt="Git"/></a>
   <a href="https://git-scm.com/"><img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub" heigh=48px width=48px/></a>
+  <a href="https://www.raylib.com/"><img src ="2223-9th-grade-sprint-math-games/Images/icons8-raylib-48.png" alt="Raylib"/></a>
 </p> 
 
 ## 📝 Documents
  
 <h4>Documents</h4>
   <ul>
-    <li><a href="">Documentation</a></li>
-    <li><a href="">QA Table</a></li>
+    <li><a href="2223-9th-grade-sprint-math-games/Documents/Documentation/Documentation.docx">Documentation</a></li>
+    <li><a href="2223-9th-grade-sprint-math-games/Documents/QA/QA TEST PLAN.docx">QA Test Plan</a></li>
+    <li><a href="2223-9th-grade-sprint-math-games/Documents/QA/QA tests.xlsx">QA Table</a></li>
   </ul> 
 <h4>Presenting</h4>
   <ul>    
-    <li><a href="">Presentation</a></li>
+    <li><a href="2223-9th-grade-sprint-math-games/Documents/Presenting/Algebrain.pptx">Presentation</a></li>
   </ul> 
    
 
@@ -73,3 +75,8 @@ git clone https://github.com/codingburgas/2223-9th-grade-sprint-math-games-algeb
 | Polina Dineva |  *QA Engineer*  | 🟦 9G |
 
 
+## 🎮 Algebrain's game
+
+<img src="2223-9th-grade-sprint-math-games/Images/stage2.png"/>
+
+<img src="2223-9th-grade-sprint-math-games/Images/stage3.png"/>
