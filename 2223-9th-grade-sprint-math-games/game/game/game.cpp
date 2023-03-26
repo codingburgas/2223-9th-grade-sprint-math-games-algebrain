@@ -51,7 +51,8 @@ texture textureMake(Image* img, int width, int height) {
 
 class game {
 protected:
-
+	Image background_1Img = LoadImage("images/background.png");
+	texture background_1 = textureMake(&background_1Img, screenWidth, screenHeight);
 
 	void gravity(pos& playerPos, int pHeight) {
 		if (playerPos.y < floorHeight - pHeight) {
@@ -118,6 +119,7 @@ public:
 	difficulty* dif = new difficulty();
 	question q = questions[GetRandomValue(0, questions.size() - 1)];
 	bool answerClicked = false;
+	bool correctAnswerClicked = false;
 	bool rightAnswer;
 	bool takeDamage = true;
 
@@ -126,7 +128,6 @@ public:
 		ImageResize(&pSpriteImg, pSpriteImg.width / 6, pSpriteImg.height / 6);
 		pSprite = LoadTextureFromImage(pSpriteImg);
 		playerPos = { 20, (float)floorHeight - pSprite.height };
-
 	}
 
 	void ShowLives() {
@@ -162,8 +163,12 @@ public:
 		return &enemyPos;
 	}
 
-	const std::vector<question>& getQuestions() {
-		return questions;
+	std::vector<question>* getQuestions() {
+		return &questions;
+	}
+
+	int getEnemyHealth() {
+		return enemyHealth;
 	}
 
 	void showEnemyHealth() {
@@ -175,44 +180,70 @@ public:
 		DrawRectangleLinesEx(rec1, 2, BLACK);
 	}
 
+	texture getBackgroundTexture() {
+		return background_1;
+	}
+
+	void finishGame() {
+		std::string finishMsg;
+		if (!(health > 0)) finishMsg = username + ", you failed the game!";
+		if (!(enemyHealth > 0)) finishMsg = username + " won the game!";
+		ClearBackground(LIGHTGRAY);
+		DrawText(finishMsg.c_str(), screenWidth / 2 - (MeasureText(finishMsg.c_str(), 50) / 2), screenHeight / 2 - 50, 50, BLACK);
+	}
+
 	void attack() {
-		if (!attacking) {
-			if (playerPos.x > enemyPos.x - 100 - pSprite.width) {
-				DrawText("Press E to attack", playerPos.x + (pSprite.width - MeasureText("Press E to attack", 30)) / 2, playerPos.y - 50, 30, BLACK);
-				if (IsKeyDown(KEY_E)) {
-					attacking = true;
+		if (health > 0 && enemyHealth > 0) {
+			if (!attacking) {
+				if (playerPos.x > enemyPos.x - 100 - pSprite.width) {
+					Rectangle pressKeyRec = { playerPos.x + (pSprite.width - MeasureText("Press E",30)) / 2 - 10, playerPos.y - 60, MeasureText("Press E",30) + 20, 50 };
+					DrawRectangleRec(pressKeyRec, LIGHTGRAY);
+					DrawRectangleLinesEx(pressKeyRec, 2, BLACK);
+					//DrawRectangle(playerPos.x + (pSprite.width - MeasureText("Press E", 30) / 2)-20, playerPos.y - 60, MeasureText("Press E to attack", 30) + 10, 50, GRAY);
+					DrawText("Press E", playerPos.x + (pSprite.width - MeasureText("Press E", 30)) / 2, playerPos.y - 50, 30, BLACK);
+					if (IsKeyDown(KEY_E)) {
+						attacking = true;
+					}
+				}
+			}
+			else {
+				Rectangle questionRec = { screenWidth / 2 - (MeasureText(q.qst.c_str(),60)) / 1.5, screenHeight / 2 - 200, (MeasureText(q.qst.c_str(),60) + 120), 400 };
+				DrawRectangle(0, 0, screenWidth, screenHeight, { 0,0,0,100 });
+				DrawRectangleRec(questionRec, LIGHTGRAY);
+				DrawRectangleLinesEx(questionRec, 3, BLACK);
+				DrawText(q.qst.c_str(), questionRec.x + 60, questionRec.y + 60, 60, BLACK);
+				Rectangle answerRec[3];
+				for (int i = 0; i < 3; i++) {
+					answerRec[i] = { questionRec.x + (questionRec.width - MeasureText(q.qst.c_str(),60)) / 2 , questionRec.y + 130 + (i * 80) ,(float)MeasureText(q.qst.c_str(),60), 60 };
+					DrawRectangleRec(answerRec[i], GRAY);
+					DrawRectangleLinesEx(answerRec[i], 3, BLACK);
+					DrawText(q.answers[i].c_str(), answerRec[i].x + (answerRec[i].width - MeasureText(q.answers[i].c_str(), 60)) / 2, answerRec[i].y, 60, BLACK);
+					if (i == q.correctAnswer - 1) DrawRectangle(answerRec[i].x, answerRec[i].y, 10, 10, GREEN);
+				}
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+					for (int i = 0; i < 3; i++) {
+						if (CheckCollisionPointRec(GetMousePosition(), answerRec[i])) {
+							answerClicked = true;
+						}
+					}
+					selectRectangle(correctAnswerClicked, answerRec[q.correctAnswer - 1], boolSelected);
+					if (answerClicked) {
+						if (correctAnswerClicked) {
+							enemyHealth -= 1;
+						}
+						else {
+							health -= 25;
+
+						}
+						attacking = false;
+						answerClicked = false;
+						correctAnswerClicked = false;
+						q = questions[GetRandomValue(0, questions.size() - 1)];
+						playerPos = { 20, (float)floorHeight - pSprite.height };
+					}
 				}
 			}
 		}
-		else {
-			Rectangle questionRec = { screenWidth / 2 - (MeasureText(q.qst.c_str(),60)) / 1.5, screenHeight / 2 - 200, (MeasureText(q.qst.c_str(),60) + 120), 400 };
-			DrawRectangle(0, 0, screenWidth, screenHeight, { 0,0,0,100 });
-			DrawRectangleRec(questionRec, LIGHTGRAY);
-			DrawRectangleLinesEx(questionRec, 3, BLACK);
-			DrawText(q.qst.c_str(), questionRec.x + 60, questionRec.y + 60, 60, BLACK);
-			Rectangle answerRec[3];
-			for (int i = 0; i < 3; i++) {
-				answerRec[i] = { questionRec.x + (questionRec.width - MeasureText(q.qst.c_str(),60)) / 2 , questionRec.y + 130 + (i * 80) ,(float)MeasureText(q.qst.c_str(),60), 60 };
-				DrawRectangleRec(answerRec[i], GRAY);
-				DrawRectangleLinesEx(answerRec[i], 3, BLACK);
-				DrawText(q.answers[i].c_str(), answerRec[i].x + (answerRec[i].width - MeasureText(q.answers[i].c_str(), 60)) / 2, answerRec[i].y, 60, BLACK);
-				if (i == q.correctAnswer - 1) DrawRectangle(answerRec[i].x, answerRec[i].y, 10, 10, GREEN);
-			}
-			if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-				selectRectangle(answerClicked, answerRec[q.correctAnswer - 1], boolSelected);
-				if (answerClicked) {
-					enemyHealth -= 1;
-				}
-				else {
-					health -= 25;
-
-				}
-				attacking = false;
-				answerClicked = false;
-				q = questions[GetRandomValue(0, questions.size() - 1)];
-			}
-		}
-
 	}
 };
 
@@ -224,8 +255,6 @@ int main()
 {
 	SetTargetFPS(60);
 	InitWindow(screenWidth, screenHeight, "Game");
-	Image background_1Img = LoadImage("images/background.png");
-	texture background_1 = textureMake(&background_1Img, screenWidth, screenHeight);
 	bool setDifVal = true;
 	bool difSelected = false;
 	const int maxNameLength = 10;
@@ -240,115 +269,120 @@ int main()
 	while (!WindowShouldClose()) {
 		BeginDrawing();
 		static float time = GetFrameTime();
-		if (!usernameChosen) {
-			Rectangle textbox = { screenWidth / 2 - 300 / 2, screenHeight / 2 - 50 / 2, 300,50 };
-			Rectangle submit = { screenWidth / 2 - 150 / 2, screenHeight / 2 + 100 / 2, 150,75 };
-			selectRectangle(clickedOnTextbox, textbox, p->boolSelected);
-			selectRectangle(clickedOnSubmit, submit, p->boolSelected);
-			if (clickedOnTextbox) {
-				key = GetKeyPressed();
+			if (!usernameChosen) {
+				Rectangle textbox = { screenWidth / 2 - 300 / 2, screenHeight / 2 - 50 / 2, 300,50 };
+				Rectangle submit = { screenWidth / 2 - 150 / 2, screenHeight / 2 + 100 / 2, 150,75 };
+				selectRectangle(clickedOnTextbox, textbox, p->boolSelected);
+				selectRectangle(clickedOnSubmit, submit, p->boolSelected);
+				if (clickedOnTextbox) {
+					key = GetKeyPressed();
 
-				if ((key >= 32) && (key <= 125) && (p->usernameChosing.size() < maxNameLength))
-				{
-					p->usernameChosing.push_back(key);
+					if ((key >= 32) && (key <= 125) && (p->usernameChosing.size() < maxNameLength))
+					{
+						p->usernameChosing.push_back(key);
+					}
+					key = GetKeyPressed();
+					if (IsKeyPressed(KEY_BACKSPACE)) {
+						if (p->usernameChosing.size() > 0)
+							p->usernameChosing.pop_back();
+					}
 				}
-				key = GetKeyPressed();
-				if (IsKeyPressed(KEY_BACKSPACE)) {
-					if (p->usernameChosing.size() > 0)
-						p->usernameChosing.pop_back();
-				}
-			}
-			ClearBackground(LIGHTGRAY);
-			DrawText(usernameMessage.c_str(), screenWidth / 2 - (MeasureText(usernameMessage.c_str(), 50) / 2), screenHeight / 2 - 100, 50, BLACK);
-			DrawRectangleRec(textbox, GRAY);
-			if (!clickedOnTextbox) DrawRectangleLinesEx(textbox, 3, BLACK);
-			else DrawRectangleLinesEx(textbox, 3, RED);
-			DrawText(p->usernameChosing.c_str(), (screenWidth / 2) - (300 / 2) + (textbox.width - MeasureText(p->usernameChosing.c_str(), 40)) / 2, (screenHeight / 2) - (40 / 2) + (textbox.height - 40) / 2, 40, WHITE);
-			DrawRectangleRec(submit, GRAY);
-			DrawText(submitMessage.str.c_str(), submit.x + (submit.width - MeasureText(submitMessage.str.c_str(), submitMessage.fontSize)) / 2, submit.y + (submit.height - submitMessage.fontSize) / 2, submitMessage.fontSize, submitMessage.clr);
-			if (!clickedOnSubmit) {
-				DrawRectangleLinesEx(submit, 3, BLACK);
-				submitMessage.str = "Submit";
-				submitMessage.clr = BLACK;
-			}
-			else {
-				submitMessage.clr = RED;
-				DrawRectangleLinesEx(submit, 3, RED);
-				if (p->usernameChosing.size() > 0) {
-					p->username = p->usernameChosing;
-					usernameChosen = true;
+				ClearBackground(LIGHTGRAY);
+				DrawText(usernameMessage.c_str(), screenWidth / 2 - (MeasureText(usernameMessage.c_str(), 50) / 2), screenHeight / 2 - 100, 50, BLACK);
+				DrawRectangleRec(textbox, GRAY);
+				if (!clickedOnTextbox) DrawRectangleLinesEx(textbox, 3, BLACK);
+				else DrawRectangleLinesEx(textbox, 3, RED);
+				DrawText(p->usernameChosing.c_str(), (screenWidth / 2) - (300 / 2) + (textbox.width - MeasureText(p->usernameChosing.c_str(), 40)) / 2, (screenHeight / 2) - (40 / 2) + (textbox.height - 40) / 2, 40, WHITE);
+				DrawRectangleRec(submit, GRAY);
+				DrawText(submitMessage.str.c_str(), submit.x + (submit.width - MeasureText(submitMessage.str.c_str(), submitMessage.fontSize)) / 2, submit.y + (submit.height - submitMessage.fontSize) / 2, submitMessage.fontSize, submitMessage.clr);
+				if (!clickedOnSubmit) {
+					DrawRectangleLinesEx(submit, 3, BLACK);
+					submitMessage.str = "Submit";
+					submitMessage.clr = BLACK;
 				}
 				else {
-					submitMessage.str = "Too Short";
-					submitMessage.fontSize = 20;
-				}
-			}
-		}
-		else if (!p->dif->isSelected) {
-			ClearBackground(LIGHTGRAY);
-			//drawCenterLines();
-			DrawText("Chose your difficulty", screenWidth / 2 - (MeasureText("Input your username:", 50) / 2), screenHeight / 2 - 100, 50, BLACK);
-			Rectangle inputDifRec = { screenWidth / 2 - 400, screenHeight / 2, 800, 200 };
-			DrawRectangleRec(inputDifRec, BLACK);
-			std::map<std::string, Rectangle> difSelect;
-			difSelect["Easy"] = { inputDifRec.x,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
-			difSelect["Normal"] = { inputDifRec.x + inputDifRec.width / 3,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
-			difSelect["Hard"] = { inputDifRec.x + (inputDifRec.width / 3) * 2 ,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
-
-			for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++) {
-				DrawRectangleRec(itr->second, GRAY);
-				DrawRectangleLinesEx(itr->second, 4, LIGHTGRAY);
-				DrawText(itr->first.c_str(), itr->second.x + itr->second.width / 2 - (MeasureText(itr->first.c_str(), 30) / 2), itr->second.y + itr->second.height / 2 - 15, 30, BLACK);
-			}
-
-			for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
-			{
-				if (CheckCollisionPointRec(GetMousePosition(), itr->second)) {
-					DrawRectangleLinesEx(itr->second, 5, BLACK);
-				}
-			}
-
-			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-				for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
-				{
-					if (!p->dif->isSelected) {
-						if (CheckCollisionPointRec(GetMousePosition(), itr->second)) p->dif->isSelected = true;
-						p->dif->difName = itr->first;
+					submitMessage.clr = RED;
+					DrawRectangleLinesEx(submit, 3, RED);
+					if (p->usernameChosing.size() > 0) {
+						p->username = p->usernameChosing;
+						usernameChosen = true;
+					}
+					else {
+						submitMessage.str = "Too Short";
+						submitMessage.fontSize = 20;
 					}
 				}
 			}
+			else if (!p->dif->isSelected) {
+				ClearBackground(LIGHTGRAY);
+				//drawCenterLines();
+				DrawText("Chose your difficulty", screenWidth / 2 - (MeasureText("Input your username:", 50) / 2), screenHeight / 2 - 100, 50, BLACK);
+				Rectangle inputDifRec = { screenWidth / 2 - 400, screenHeight / 2, 800, 200 };
+				DrawRectangleRec(inputDifRec, BLACK);
+				std::map<std::string, Rectangle> difSelect;
+				difSelect["Easy"] = { inputDifRec.x,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
+				difSelect["Normal"] = { inputDifRec.x + inputDifRec.width / 3,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
+				difSelect["Hard"] = { inputDifRec.x + (inputDifRec.width / 3) * 2 ,inputDifRec.y,inputDifRec.width / 3,inputDifRec.height };
 
-			if (setDifVal && p->dif->isSelected) {
-				if (p->dif->difName == "Easy") {
-					p->starting_health = 150;
+				for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++) {
+					DrawRectangleRec(itr->second, GRAY);
+					DrawRectangleLinesEx(itr->second, 4, LIGHTGRAY);
+					DrawText(itr->first.c_str(), itr->second.x + itr->second.width / 2 - (MeasureText(itr->first.c_str(), 30) / 2), itr->second.y + itr->second.height / 2 - 15, 30, BLACK);
 				}
-				if (p->dif->difName == "Normal") {
-					p->starting_health = 100;
+
+				for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
+				{
+					if (CheckCollisionPointRec(GetMousePosition(), itr->second)) {
+						DrawRectangleLinesEx(itr->second, 5, BLACK);
+					}
 				}
-				if (p->dif->difName == "Hard") {
-					p->starting_health = 50;
+
+				if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+					for (auto itr = difSelect.begin(); itr != difSelect.end(); itr++)
+					{
+						if (!p->dif->isSelected) {
+							if (CheckCollisionPointRec(GetMousePosition(), itr->second)) p->dif->isSelected = true;
+							p->dif->difName = itr->first;
+						}
+					}
 				}
-				p->health = p->starting_health;
-				setDifVal = false;
+
+				if (setDifVal && p->dif->isSelected) {
+					if (p->dif->difName == "Easy") {
+						p->starting_health = 150;
+					}
+					if (p->dif->difName == "Normal") {
+						p->starting_health = 100;
+					}
+					if (p->dif->difName == "Hard") {
+						p->starting_health = 50;
+					}
+					p->health = p->starting_health;
+					setDifVal = false;
+				}
+
 			}
+			if (p->dif->isSelected && usernameChosen) {
+				if (p->health > 0 && p->getEnemyHealth() > 0) {
+					DrawTexture(p->getBackgroundTexture(), 0, 0, WHITE);
+					//DrawRectangle(0, p->getFloorHeight(), screenWidth, screenWidth - p->getFloorHeight(), GRAY);
+					p->movement();
+					DrawTexture(*p->getEnemy(), p->getEnemyPos()->x, p->getEnemyPos()->y, WHITE);
+					DrawTexture(p->pSprite, p->playerPos.x, p->playerPos.y, WHITE);
+					p->attack();
+					p->showHealth();
+					p->showEnemyHealth();
 
-		}
-		if (p->dif->isSelected && usernameChosen) {
-
-			DrawTexture(background_1, 0, 0, WHITE);
-			//DrawRectangle(0, p->getFloorHeight(), screenWidth, screenWidth - p->getFloorHeight(), GRAY);
-			p->movement();
-			DrawTexture(*p->getEnemy(), p->getEnemyPos()->x, p->getEnemyPos()->y, WHITE);
-			DrawTexture(p->pSprite, p->playerPos.x, p->playerPos.y, WHITE);
-			p->attack();
-			p->showHealth();
-			p->showEnemyHealth();
-			/*DrawRectangle(p->playerPos.x, p->playerPos.y, 10, 10, RED);
-			DrawRectangle(p->playerPos.x + p->pSprite.width, p->playerPos.y, 10, 10, RED);*/
-		}
-		//for (int i = 0; i < screenHeight; i += 20) {
-		//	DrawRectangle(0, i, 10, 10, RED);
-		//}
+					/*DrawRectangle(p->playerPos.x, p->playerPos.y, 10, 10, RED);
+					DrawRectangle(p->playerPos.x + p->pSprite.width, p->playerPos.y, 10, 10, RED);*/
+				}
+				else {
+					p->finishGame();
+				}
+			}
+			//for (int i = 0; i < screenHeight; i += 20) {
+			//	DrawRectangle(0, i, 10, 10, RED);
+			//}
 		EndDrawing();
 	}
 	delete p;
