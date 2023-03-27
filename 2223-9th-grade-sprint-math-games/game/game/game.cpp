@@ -11,7 +11,7 @@ typedef Texture2D texture;
 
 const int screenWidth = 1200;
 const int screenHeight = 600;
-bool showAnswers = false // Set to true if you want to show answers (shows 10x10px green box on top of the correct answer rectangle)
+bool showAnswers = false; // Set to true if you want to show answers (shows 10x10px green box on top of the correct answer rectangle)
 
 void drawCenterLines() { // used for testing
 	DrawRectangle(screenWidth / 2, 0, 1, 10000, BLACK);
