@@ -225,7 +225,7 @@ public:
 					DrawRectangleRec(answerRec[i], GRAY);
 					DrawRectangleLinesEx(answerRec[i], 3, BLACK);
 					DrawText(q.answers[i].c_str(), answerRec[i].x + (answerRec[i].width - MeasureText(q.answers[i].c_str(), 60)) / 2, answerRec[i].y, 60, BLACK);
-					if(showAnswers = true) if (i == q.correctAnswer - 1) DrawRectangle(answerRec[i].x, answerRec[i].y, 10, 10, GREEN);
+					if (showAnswers) { if (i == q.correctAnswer - 1) DrawRectangle(answerRec[i].x, answerRec[i].y, 10, 10, GREEN); }
 				}
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
 					for (int i = 0; i < 3; i++) {
